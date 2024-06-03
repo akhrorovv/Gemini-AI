@@ -18,7 +18,6 @@ class _StarterPageState extends State<StarterPage> {
     videoPlayerController =
         VideoPlayerController.asset("assets/videos/gemini_video.mp4")
           ..initialize().then((_) {
-            // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
             setState(() {});
           });
 
@@ -38,11 +37,11 @@ class _StarterPageState extends State<StarterPage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 40),
+          padding: const EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
               Container(
-                child: Image(
+                child: const Image(
                   width: 150,
                   image: AssetImage('assets/images/gemini_logo.png'),
                   fit: BoxFit.cover,
@@ -53,15 +52,36 @@ class _StarterPageState extends State<StarterPage> {
                     ? VideoPlayer(videoPlayerController)
                     : Container(),
               ),
-              Container(
-                // height: 50,
-                child: ElevatedButton(
-                  // color: Colors.white,
-                  onPressed: (){
-                    Navigator.pushReplacementNamed(context, HomePage.id);
-                  },
-                  child: Text('Chat with Gemini', style: TextStyle(fontSize: 18),),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, HomePage.id);
+                    },
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 2),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Chat with Gemini ',
+                            style: TextStyle(color: Colors.grey[400], fontSize: 18),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.grey,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
