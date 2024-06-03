@@ -6,8 +6,12 @@ import 'package:gemini/domain/usecases/gemini_text_and_image_usecase.dart';
 import 'package:gemini/domain/usecases/gemini_text_only_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/constants/constants.dart';
 import '../../core/services/log_service.dart';
 import '../../core/services/utils_service.dart';
+import '../../data/models/message_model.dart';
+import '../widgets/item_gemini_message.dart';
+import '../widgets/item_user_message.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_page';
@@ -31,6 +35,20 @@ class _HomePageState extends State<HomePage> {
   final ImagePicker _picker = ImagePicker();
   File? _image;
 
+  List<MessageModel> messages = [
+    MessageModel(
+        isMine: true,
+        message:
+            'How to learn Flutter? How to learn Flutter?How to learn Flutter?efwefewfewfewfff'),
+    MessageModel(isMine: false, message: 'In Flutter, the BorderRadius.only constructor is used to apply rounded corners to specific edges of a widget. It provides more granular control compared to other BorderRadius constructors that set a uniform radius for all corners'),
+    MessageModel(
+        isMine: true, message: 'What is this picture?', base64: testImage),
+    MessageModel(
+        isMine: false,
+        message:
+            "In Flutter, the BorderRadius.only constructor is used to apply rounded corners to specific edges of a widget. It provides more granular control compared to other BorderRadius constructors that set a uniform radius for all cornersIn Flutter, the BorderRadius.only constructor is used to apply rounded corners to specific edges of a widget. It provides more granular control compared to other BorderRadius constructors that set a uniform radius for all corners")
+  ];
+
   // _imgFromGallery() async {
   //   XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
   //   setState(() {
@@ -46,34 +64,41 @@ class _HomePageState extends State<HomePage> {
   }
 
   pickImage() async {
-    XFile? image =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
-    setState(() {
-      _image = File(image!.path);
-    });
+    // XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    // setState(() {
+    //   _image = File(image!.path);
+    // });
     base64 = await Utils.pickAndConvertImage();
     LogService.i('Image selected !!!');
   }
 
-  apiTextOnly(String text) async {
-    textController.clear();
-    var result = await textOnlyUseCase.call(text);
-    setState(() {
-      response = result;
+  apiTextOnly() async {
+    var text = "What is the best way to learn Flutter development?";
+    var either = await textOnlyUseCase.call(text);
+    either.fold((l) {
+      LogService.d(l);
+    }, (r) async {
+      LogService.d(r);
     });
-    LogService.d(result);
   }
 
-  apiTextAndImage(String text, String base64) async {
-    textController.clear();
-    var result = await textAndImageUseCase.call(text, base64);
-    setState(() {
-      _image = null;
-      base64 = '';
-      response = result;
-    });
+  apiTextAndImage() async {
+    var text = "What is this image?";
+    var base64 = await Utils.pickAndConvertImage();
 
-    LogService.d(result);
+    var either = await textAndImageUseCase.call(text, base64);
+    either.fold((l) {
+      LogService.d(l);
+    }, (r) async {
+      LogService.d(r);
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiTextOnly();
   }
 
   @override
@@ -101,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.all(15),
-                    child: response.isEmpty
+                    child: messages.isEmpty
                         ? Center(
                             child: SizedBox(
                               height: 100,
@@ -110,16 +135,16 @@ class _HomePageState extends State<HomePage> {
                                   Image.asset('assets/images/gemini_icon.png'),
                             ),
                           )
-                        : ListView(
-                            children: [
-                              Text(
-                                response,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                              )
-                            ],
+                        : ListView.builder(
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              var message = messages[index];
+                              if (message.isMine!) {
+                                return itemOfUserMessage(message);
+                              } else {
+                                return itemOfGeminiMessage(message);
+                              }
+                            },
                           ),
                   ),
                 ),
@@ -128,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.only(left: 20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey, width: 2),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,9 +220,9 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             onPressed: () {
                               if (base64 != '') {
-                                apiTextAndImage(textController.text, base64);
+                                // apiTextAndImage(textController.text, base64);
                               } else {
-                                apiTextOnly(textController.text);
+                                // apiTextOnly(textController.text);
                               }
                               _focusNode.unfocus();
                             },
