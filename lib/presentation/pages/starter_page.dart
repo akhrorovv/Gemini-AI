@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemini/presentation/pages/home_page.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:video_player/video_player.dart';
 
 class StarterPage extends StatefulWidget {
@@ -31,6 +32,25 @@ class _StarterPageState extends State<StarterPage> {
     super.dispose();
   }
 
+  Route _createRoute(Widget child) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,8 +80,8 @@ class _StarterPageState extends State<StarterPage> {
                       Navigator.pushReplacementNamed(context, HomePage.id);
                     },
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey, width: 2),
                         borderRadius: BorderRadius.circular(25),
@@ -71,7 +91,8 @@ class _StarterPageState extends State<StarterPage> {
                         children: [
                           Text(
                             'Chat with Gemini ',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 18),
+                            style: TextStyle(
+                                color: Colors.grey[400], fontSize: 18),
                           ),
                           const Icon(
                             Icons.arrow_forward,
