@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gemini/presentation/pages/home_page.dart';
-import 'package:page_transition/page_transition.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+
+import '../controllers/starter_controller.dart';
 
 class StarterPage extends StatefulWidget {
   const StarterPage({super.key});
@@ -11,44 +13,20 @@ class StarterPage extends StatefulWidget {
 }
 
 class _StarterPageState extends State<StarterPage> {
-  late VideoPlayerController videoPlayerController;
+  final starterController = Get.find<StarterController>();
 
   @override
   void initState() {
     super.initState();
-    videoPlayerController =
-        VideoPlayerController.asset("assets/videos/gemini_video.mp4")
-          ..initialize().then((_) {
-            setState(() {});
-          });
 
-    videoPlayerController.play();
-    videoPlayerController.setLooping(true);
+    starterController.initVideoPlayer();
   }
 
   @override
   void dispose() {
-    videoPlayerController.dispose();
+    starterController.stopVideoPlayer();
+
     super.dispose();
-  }
-
-  Route _createRoute(Widget child) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => child,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
   }
 
   @override
@@ -68,9 +46,10 @@ class _StarterPageState extends State<StarterPage> {
                 ),
               ),
               Expanded(
-                child: videoPlayerController.value.isInitialized
-                    ? VideoPlayer(videoPlayerController)
-                    : Container(),
+                child:
+                    starterController.videoPlayerController.value.isInitialized
+                        ? VideoPlayer(starterController.videoPlayerController)
+                        : Container(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -78,6 +57,7 @@ class _StarterPageState extends State<StarterPage> {
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(context, HomePage.id);
+                      // Get.offNamed();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

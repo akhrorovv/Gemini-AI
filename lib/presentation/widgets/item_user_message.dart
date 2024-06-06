@@ -36,7 +36,6 @@ Widget itemOfUserMessage(MessageModel message) {
                     margin: const EdgeInsets.only(top: 16, bottom: 6),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      // child: Image.network(message.base64!),
                       child: Image.memory(base64Decode(message.base64!)),
                     ),
                   )

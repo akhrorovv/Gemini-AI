@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gemini/presentation/pages/home_page.dart';
 import 'package:gemini/presentation/pages/starter_page.dart';
+import 'package:get/get.dart';
+
+import 'core/config/root_binding.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +14,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -22,6 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         'home_page': (context) => HomePage(),
       },
+      initialBinding: RootBinding(),
       onGenerateRoute: (settings) {
         if (settings.name == 'home_page') {
           return PageRouteBuilder(
