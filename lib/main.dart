@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini/presentation/pages/home_page.dart';
 import 'package:gemini/presentation/pages/starter_page.dart';
@@ -10,6 +11,15 @@ import 'data/models/message_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: 'AIzaSyC6uuKlftNS9Q1IztfzqHX2A_RGUmc6-wg',
+        appId: '1:877105179774:android:e5c65ab9045828c7587c2f',
+        messagingSenderId: '877105179774',
+        projectId: 'gemini-ai-1d3ee',
+      )
+  );
+
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive
     ..init(appDocumentDirectory.path)
@@ -32,31 +42,10 @@ class MyApp extends StatelessWidget {
       ),
       home: const StarterPage(),
       routes: {
-        'home_page': (context) => HomePage(),
+        HomePage.id: (context) => HomePage(),
+        StarterPage.id: (context) => StarterPage(),
       },
       initialBinding: RootBinding(),
-      onGenerateRoute: (settings) {
-        if (settings.name == 'home_page') {
-          return PageRouteBuilder(
-            settings: settings,
-            pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOut;
-
-              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-
-              return SlideTransition(
-                position: offsetAnimation,
-                child: child,
-              );
-            },
-          );
-        }
-        return null;
-      },
     );
   }
 }

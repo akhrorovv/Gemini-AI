@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:gemini/core/services/auth_service.dart';
 import 'package:gemini/core/services/log_service.dart';
 import 'package:gemini/presentation/controllers/home_controller.dart';
 import 'package:gemini/presentation/widgets/loading_view.dart';
@@ -22,14 +24,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final homeController = Get.find<HomeController>();
 
-
   @override
   void initState() {
     super.initState();
 
     homeController.loadHistoryMessages();
     homeController.initSTT();
-
 
     ShakeDetector detector = ShakeDetector.autoStart(
       onPhoneShake: () {
@@ -45,8 +45,6 @@ class _HomePageState extends State<HomePage> {
       shakeThresholdGravity: 2.7,
     );
   }
-
-
 
   @override
   void dispose() {
@@ -69,37 +67,85 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const SizedBox(
-                        height: 45,
-                        child: Image(
-                          image: AssetImage('assets/images/gemini_logo.png'),
-                          fit: BoxFit.cover,
-                        ),
+                      Stack(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 45,
+                                child: Image(
+                                  image:
+                                  AssetImage('assets/images/gemini_logo.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: (){
+                                  homeController.logOutDialog(context);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(top: 10, right: 16),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    child: CachedNetworkImage(
+                                      height: 40,
+                                      width: 40,
+                                      imageUrl: AuthService.currentUser().photoURL!,
+                                      placeholder: (context, url) => const Image(
+                                        image: AssetImage(
+                                            "assets/images/ic_person.png"),
+                                        width: 70,
+                                        height: 70,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      errorWidget: (context, url, error) => const Image(
+                                        image: AssetImage(
+                                            "assets/images/ic_person.png"),
+                                        width: 70,
+                                        height: 70,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+
+                        ],
                       ),
                       Expanded(
                         child: Container(
                           margin: const EdgeInsets.all(15),
                           child: homeController.messages.isEmpty
                               ? Center(
-                            child: SizedBox(
-                              width: 70,
-                              child: Image.asset(
-                                  'assets/images/gemini_icon.png'),
-                            ),
-                          )
+                                  child: SizedBox(
+                                    width: 70,
+                                    child: Image.asset(
+                                        'assets/images/gemini_icon.png'),
+                                  ),
+                                )
                               : ListView.builder(
-                            itemCount: homeController.messages.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              var message = homeController.messages[index];
-                              if (message.isMine!) {
-                                return itemOfUserMessage(message);
-                              } else {
-                                return itemOfGeminiMessage(
-                                    message, homeController);
-                              }
-                            },
-                          ),
+                                  itemCount: homeController.messages.length,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    var message =
+                                        homeController.messages[index];
+                                    if (message.isMine!) {
+                                      return itemOfUserMessage(message);
+                                    } else {
+                                      return itemOfGeminiMessage(
+                                          message, homeController);
+                                    }
+                                  },
+                                ),
                         ),
                       ),
                       Container(
@@ -114,49 +160,52 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             homeController.pickedImage != null
                                 ? Stack(
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(top: 16),
-                                  height: 100,
-                                  width: 100,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.memory(
-                                      base64Decode(
-                                          homeController.pickedImage!),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(top: 16),
-                                  padding:
-                                  const EdgeInsets.only(top: 5, right: 5),
-                                  height: 100,
-                                  width: 100,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      GestureDetector(
-                                        child: const Icon(Icons.cancel),
-                                        onTap: () {
-                                          homeController.onRemovedImage();
-                                        },
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 16),
+                                        height: 100,
+                                        width: 100,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Image.memory(
+                                            base64Decode(
+                                                homeController.pickedImage!),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 16),
+                                        padding: const EdgeInsets.only(
+                                            top: 5, right: 5),
+                                        height: 100,
+                                        width: 100,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            GestureDetector(
+                                              child: const Icon(Icons.cancel),
+                                              onTap: () {
+                                                homeController.onRemovedImage();
+                                              },
+                                            )
+                                          ],
+                                        ),
                                       )
                                     ],
-                                  ),
-                                )
-                              ],
-                            )
+                                  )
                                 : const SizedBox.shrink(),
                             Row(
                               children: [
                                 Expanded(
                                   child: TextField(
                                     controller: homeController.textController,
-                                    focusNode: homeController.textFieldFocusNode,
+                                    focusNode:
+                                        homeController.textFieldFocusNode,
                                     maxLines: null,
                                     style: const TextStyle(color: Colors.white),
                                     decoration: const InputDecoration(
@@ -197,7 +246,8 @@ class _HomePageState extends State<HomePage> {
                                 IconButton(
                                   padding: EdgeInsets.zero,
                                   onPressed: () {
-                                    var text = homeController.textController.text
+                                    var text = homeController
+                                        .textController.text
                                         .toString()
                                         .trim();
                                     homeController.onSendPressed(text);
@@ -215,12 +265,15 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                homeController.isLoading ? Center(
-                  child: Container(
-                    height: 70,
-                    child: Lottie.asset('assets/animations/gemini_buffering.json'),
-                  ),
-                ) : SizedBox.shrink()
+                homeController.isLoading
+                    ? Center(
+                        child: Container(
+                          height: 70,
+                          child: Lottie.asset(
+                              'assets/animations/gemini_buffering.json'),
+                        ),
+                      )
+                    : SizedBox.shrink()
               ],
             );
           },

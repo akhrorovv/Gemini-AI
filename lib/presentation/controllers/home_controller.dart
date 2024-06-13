@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:gemini/core/services/auth_service.dart';
+import 'package:gemini/presentation/pages/starter_page.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -11,6 +13,7 @@ import '../../data/models/message_model.dart';
 import '../../data/repositories/gemini_talk_repository_impl.dart';
 import '../../domain/usecases/gemini_text_and_image_usecase.dart';
 import '../../domain/usecases/gemini_text_only_usecase.dart';
+import '../widgets/generic_dialog.dart';
 
 class HomeController extends GetxController {
   GeminiTextOnlyUseCase textOnlyUseCase =
@@ -29,6 +32,26 @@ class HomeController extends GetxController {
   FlutterTts flutterTts = FlutterTts();
 
   bool isLoading = false;
+
+  logOutDialog(BuildContext context) async {
+    bool result = await showGenericDialog(
+      context: context,
+      title: 'Sign Out',
+      content: "Do you want to sign out?",
+      optionsBuilder: () => {
+        'Cancel': false,
+        'Confirm': true,
+      },
+    );
+    if (result) {
+      await AuthService.signOutFromGoogle();
+      callStarterPage(context);
+    }
+  }
+
+  callStarterPage(BuildContext context) {
+    Navigator.pushReplacementNamed(context, StarterPage.id);
+  }
 
   loadHistoryMessages() {
     var historyMessages = HiveService.getHistoryMessages();

@@ -1,6 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:gemini/core/services/auth_service.dart';
+import 'package:gemini/core/services/log_service.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+
+import '../pages/home_page.dart';
 
 class StarterController extends GetxController {
   late VideoPlayerController videoPlayerController;
@@ -15,6 +20,15 @@ class StarterController extends GetxController {
 
     videoPlayerController.play();
     videoPlayerController.setLooping(true);
+  }
+
+  callHomePage(BuildContext context){
+    Navigator.pushReplacementNamed(context, HomePage.id);
+  }
+
+  callGoogleSignIn()async{
+    var result = await AuthService.signInWithGoogle();
+    LogService.i(result);
   }
 
   stopVideoPlayer() {
